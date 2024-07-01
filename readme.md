@@ -5,6 +5,10 @@ and regularly checks that the distance doesn't exceed a value given by the user.
 
 # Requirements
 To execute the scripts, aside from a SUMO and python installation, you have to install some python libraries. A requirements file is provided to quickly install all the libraries needed.
+All you have to do is navigate to the cloned repository and type this command inside a shell:
+```shell
+pip install -r requirements.txt
+```
 What follows is a list of the requirements:
 - **Sumo** : the scripts were tested with version **1.20.0**.
 - **Python** : the version used is **3.12.4**.
@@ -33,4 +37,15 @@ This script has many options that can produce different output files:
 - **-ns/--new_sites** : the script will write an output file that contains a row for each time a vehicle couldn't find a site near enough. Every row contains the edge id of the edge the vehicle was on, the position of the vehicle in longitude and latitude and a counter for the edge that represents the number of times a vehicle that couldn't find a cell site, was on that edge. The resulting file does not contain duplicated row (so if it happens multiple times that some vehicles in the same positions couldn't find a site, only one row will be saved). It requires two input files, the first one should have the associations between vehicles and sites, while the second one should contain the positions of every vehicle at every step. The former has to use commas as separators while the latter has to use semicolon. The suggested files to use are the output file from the second script and the output file produced by SUMO using the **--fcd-output** option. Remember to convert the second file into a CSV file using the tool **xml2CSV.py**.
 
 # Case study
+To test this tool we analyzed the mobile traffic inpact on the BST (base transceiver station) of Turin.
+To replicate the case study you have to follow three steps that will allow you to go from the raw data about italian cell sites and a plain SUMO simulation of Turin to the results of the analysis.
+## Setup
+The first step concerns preparing the data for the execution. The simulation can be download from GitHub https://github.com/marcorapelli/TuSTScenario with the command:
+```shell
+git clone https://github.com/marcorapelli/TuSTScenario.git
+```
+The data about the cell sites can be downloaded from https://lteitaly.it/ after signing up. These files have to be transformed using the sites_extraction.py script with the option -c "Torino"
+## Execution
+TODO
+## Analysis
 TODO
