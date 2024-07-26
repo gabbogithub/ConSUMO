@@ -3,7 +3,7 @@ import pandas
 from pathlib import Path
 import libsumo
 
-def number_users(input_path, output_path):
+def number_users(input_associations, sites_list, output_path):
     """ Extracts the number of vehicles associated with every site at every simulation 
     step and then writes the results into a new csv file. Number '0' will be used 
     as a special site id to indicate the number of vehicles that were not associated 
@@ -13,25 +13,42 @@ def number_users(input_path, output_path):
     ----------
     input_path : string
         The path to the input file to analyse.
+    sites_list : string
+       The path to the file with all the sites.
     output_path : string
         The path to the output file where the results will be written.
     """
 
-    # only load the necessary columns to reduce the memory usage
+    df_out = pandas.DataFrame(list(), columns = ['timestamp', 'site_id', 'number_vehicles'])
+    df_sites = pandas.read_csv(sites_list, usecols=['site_id'])
+    df_sites['number_vehicles'] = 0
+    df_sites.insert(0, 'timestamp', 0)
+    
+    
+    # only load the necessary columns of the associations' file to reduce the memory usage
     col_list = ['step', 'site_id']
-
+    
+    
     # the manual dtype assignment is necessary to make pandas write the sites' id
     # correctly into the output file because otherwise they are written with an
     # ending '.0' like float numbers
     col_type = {'site_id': float}
-    df_in = pandas.read_csv(input_path, usecols=col_list, dtype=col_type)
-    df_in = df_in.fillna(0)
-    df_in['site_id'] = df_in['site_id'].astype(int)
-
-    df_out = df_in.value_counts().reset_index()
-    df_out = df_out.sort_values(by=['step', 'count'])
-    df_out.rename(columns={'step': 'timestamp', 'count': 'number_vehicles'}, 
-                      inplace=True)
+    df_asso = pandas.read_csv(input_associations, usecols=col_list, dtype=col_type)
+    df_asso = df_asso.fillna(0)
+    df_asso['site_id'] = df_asso['site_id'].astype(int)
+    
+    
+    df_asso = df_asso.value_counts().reset_index()
+    df_asso = df_asso.sort_values(by=['step', 'count'])
+    df_asso.rename(columns={'step': 'timestamp', 'count': 'number_vehicles'},
+    inplace=True)
+    
+    for timestamp in df_asso['timestamp'].unique():
+        df_sites['timestamp'] = timestamp
+        df_asso_timestamp = df_asso[df_asso['timestamp'] == timestamp]
+        df_sites_timestamp = df_sites[~df_sites['site_id'].isin(df_asso_timestamp['site_id'])]
+        df_out = pandas.concat([df_out, df_sites_timestamp, df_asso_timestamp])
+    
     df_out.to_csv(output_path, mode='w', index=False)
 
 def route_time(input_path, output_path):
@@ -172,9 +189,10 @@ def main():
     parser.add_argument('-o', '--output', default='output_analysis.csv', 
                         help="the file path on which the analysis will be written.")
     parser.add_argument('-us', '--users', action='store_true', help="analyses "
-                        "the number of users associated with a cell site at every "
-                        "timestamp. It requires an input file with the associations" 
-                        " between vehicles and cell sites that uses commas as separators.")
+                       "the number of users associated with a cell site at every "
+                       "timestamp. It requires an input file with the associations "
+                       "between vehicles and cell sites that uses commas as separators "
+                       "and a file with the sites' id.")
     parser.add_argument('-rt', '--route_time', action='store_true', help="analyses "
                         "the length of the route followed by every vehicle (in meters) "
                         "and the time the vehicle remained in the simulation "
@@ -208,7 +226,7 @@ def main():
     output_path.parent.mkdir(exist_ok=True, parents=True)
 
     if args.users:
-        number_users(args.input[0], args.output)
+        number_users(args.input[0], args.input[1], args.output)
     elif args.route_time:
         route_time(args.input[0], args.output)
     elif args.unique_sites:

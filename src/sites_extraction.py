@@ -51,7 +51,7 @@ def extraction(input_path, output_file, city_name):
     # reordering of the columns in order of importance
     cell_sites = cell_sites[['node_id', 'cell_lat', 'cell_long', 'site_name']]
 
-    cell_sites.rename(columns={'cell_lat': 'site_lat', 'cell_long': 'site_long'},
+    cell_sites.rename(columns={'node_id': 'site_id', 'cell_lat': 'site_lat', 'cell_long': 'site_long'},
                       inplace=True)
 
     cell_sites.to_csv(output_file, mode='w',  index=False)
