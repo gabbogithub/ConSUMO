@@ -9,6 +9,7 @@
 - [Association script](#association-script)
 - [Analysis script](#analysis-script)
 - [Case study](#case-study)
+- [Contacts](#contacts)
 
 # Requirements
 To execute the scripts, aside from [SUMO](https://eclipse.dev/sumo/) and [Python](https://www.python.org/), you have to install some Python libraries. A requirements file is provided to quickly install all the libraries needed.
