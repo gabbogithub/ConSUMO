@@ -1,3 +1,11 @@
+"""
+Copyright (c) 2024 Gabriel Panini.
+
+This source code is licensed under the MIT license found in the
+LICENSE file in the root directory of this source tree 
+(https://github.com/gabbogithub/ConSUMO/blob/main/LICENSE).
+"""
+
 import libsumo
 import os
 import sys
